@@ -5,11 +5,31 @@ window.onload = function() {
   context.fillStyle = "#fff";
   context.fillRect(0,0, canvas.width, canvas.height);
 
+  //Draws the line from an array of coordinates
+  var drawCoord = function(array) {
+    for (i=0; i<array.length; i++){
+      if(i===0){
+        context.beginPath();
+        context.moveTo(array[i][0], array[i][1]);
+      } else if(i<array.length-1 && i >0){
+        context.lineTo(array[i][0], array[i][1]);
+        context.stroke();
+      } else {
+        context.lineTo(array[i][0], array[i][1]);
+        context.stroke();
+        context.closePath();
+      }
+    }
+  };
+
   //Mouse Event Handlers
   if(canvas){
     var mouseDown = false;
     var canvasX;
     var canvasY;
+ //Stores the x,y coordinates for each point on the line drawn
+    var coord = [];
+
     context.linewidth = 3;
 
     $(canvas).mousedown(function(e){
@@ -18,6 +38,7 @@ window.onload = function() {
       canvasX = e.pageX - canvas.offsetLeft;
       canvasY = e.pageY - canvas.offsetTop;
       context.lineTo(canvasX, canvasY);
+      coord.push([canvasX, canvasY]);
       context.strokeStyle = "#000";
       context.stroke();
     })
@@ -26,12 +47,16 @@ window.onload = function() {
         canvasX = e.pageX - canvas.offsetLeft;
         canvasY = e.pageY - canvas.offsetTop;
         context.lineTo(canvasX, canvasY);
+        coord.push([canvasX, canvasY]);
         context.strokeStyle = "#000";
         context.stroke();
       }
     })
     .mouseup(function(e){
       mouseDown = false;
+      //WE'll want to send the coordinates to the server/other user
+      console.log(coord);
+      coord = [];
       context.closePath();
     });
   }
