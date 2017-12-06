@@ -10,6 +10,9 @@ window.onload = function() {
     var mouseDown = false;
     var canvasX;
     var canvasY;
+ //Stores the x,y coordinates for each point on the line drawn
+    var coord = [];
+
     context.linewidth = 3;
 
     $(canvas).mousedown(function(e){
@@ -18,6 +21,7 @@ window.onload = function() {
       canvasX = e.pageX - canvas.offsetLeft;
       canvasY = e.pageY - canvas.offsetTop;
       context.lineTo(canvasX, canvasY);
+      coord.push([canvasX, canvasY]);
       context.strokeStyle = "#000";
       context.stroke();
     })
@@ -26,12 +30,20 @@ window.onload = function() {
         canvasX = e.pageX - canvas.offsetLeft;
         canvasY = e.pageY - canvas.offsetTop;
         context.lineTo(canvasX, canvasY);
+        coord.push([canvasX, canvasY]);
         context.strokeStyle = "#000";
         context.stroke();
       }
     })
     .mouseup(function(e){
       mouseDown = false;
+      //Send the coordinates to the server/other user
+      var message = {
+        type: "drawing",
+        data: coord
+      };
+      datachannel.send(message);
+      coord = [];
       context.closePath();
     });
   }
