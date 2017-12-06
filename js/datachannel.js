@@ -112,6 +112,54 @@ var cleanChannelName = function(channel) {
   return channel.replace(/(\W)+/g, "-").toLowerCase();
 };
 
+var onSendMessage = function() {
+  var message = {
+    type: "chat",
+    data: messageInput.value
+  };
+
+  if (!message) {
+    console.log("No message given");
+    return;
+  }
+
+  datachannel.send(message);
+  addMessage(message.data, window.userid, true);
+
+  messageInput.value = "";
+};
+
+var onMessageKeyDown = function(event) {
+  if (event.keyCode == 13){
+    onSendMessage();
+  }
+};
+
+var addMessage = function(message, userId, self) {
+  var messages = messageList.getElementsByClassName("list-group-item");
+
+  // Check for any messages that need to be removed
+  var messageCount = messages.length;
+  for (var i = 0; i < messageCount; i++) {
+    var msg = messages[i];
+
+    if (msg.dataset.remove === "true") {
+      messageList.removeChild(msg);
+    }
+  };
+
+var newMessage = document.createElement("li");
+  newMessage.classList.add("list-group-item");
+
+  if (self) {
+    newMessage.classList.add("self");
+    newMessage.innerHTML = "<span class='badge'>You</span><p>" + message + "</p>";
+  } else {
+    newMessage.innerHTML = "<span class='badge'>" + userId + "</span><p>" + message + "</p>"
+  }
+
+  messageList.appendChild(newMessage);
+};
 
 var disableConnectInput = function() {
   channelInput.disabled = true;
@@ -144,10 +192,15 @@ var drawCoord = function(array) {
 var channelInput = document.querySelector(".channel-name-input");
 var createChannelBtn = document.querySelector(".chat-create");
 var joinChannelBtn = document.querySelector(".chat-join");
+var messageInput = document.querySelector(".chat-message-input");
+var sendBtn = document.querySelector(".chat-send");
+var messageList = document.querySelector(".chat-messages");
 
 // Set up DOM listeners
 createChannelBtn.addEventListener("click", onCreateChannel);
 joinChannelBtn.addEventListener("click", onJoinChannel);
+sendBtn.addEventListener("click", onSendMessage);
+messageInput.addEventListener("keydown", onMessageKeyDown);
 
 // Set up DataChannel handlers
 datachannel.onopen = function (userId) {
@@ -156,7 +209,11 @@ datachannel.onopen = function (userId) {
   messageInput.focus();
 };
 
-datachannel.onmessage = function (message) {
-  console.log(message);
-  drawCoord(message.data);
+datachannel.onmessage = function (message, userId) {
+  console.log(message.data);
+  if (message.type === "drawing") {
+    drawCoord(message.data);
+  } else if (message.type === "chat") {
+    addMessage(message.data, userId);
+  }
 };
