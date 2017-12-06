@@ -2,6 +2,9 @@
 <html>
   <head>
     <title>Tutoring Whiteboard App</title>
+    <!-- Bootstrap for general layout and styling -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
     <style>
         canvas {
           border: 1px solid black;
@@ -9,8 +12,32 @@
     </style>
   </head>
   <body>
-    <canvas id="myCanvas" width=800 height=600></canvas>
+    <div class="container">
+      <div class="row">
+        <div class="connect">
+          <input type="text" class="channel-name-input form-control" placeholder="Channel Name"></input>
+          <button class="chat-create btn btn-primary">Create</button>
+          <button class="chat-join btn btn-warning">Join</button>
+        </div>
+        <div class="canvas-window inactive">
+          <canvas id="myCanvas" width=800 height=600></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- jQuery -->
     <script type="text/JavaScript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js?ver=1.4.2"></script>
-    <script src="/whiteboard.js"></script>
+    <!-- Zepto for AJAX -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/zepto/1.1.3/zepto.min.js"></script>
+
+    <!-- Pusher for WebRTC signalling -->
+    <script src="https://js.pusher.com/4.1/pusher.min.js"></script>
+
+    <!-- DataChannel.js for WebRTC functionality -->
+    <script src="//webrtc-experiment.com/DataChannel.js"></script>
+
+    <!-- My scripts -->
+    <script src="/js/datachannel.js"></script>
+    <script src="/js/whiteboard.js"></script>
   </body>
 </html>
