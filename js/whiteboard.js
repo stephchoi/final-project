@@ -54,8 +54,12 @@ window.onload = function() {
     })
     .mouseup(function(e){
       mouseDown = false;
-      //WE'll want to send the coordinates to the server/other user
-      console.log(coord);
+      //Send the coordinates to the server/other user
+      var message = {
+        type: "drawing",
+        data: coord
+      };
+      datachannel.send(message);
       coord = [];
       context.closePath();
     });

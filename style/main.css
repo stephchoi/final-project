@@ -1,0 +1,79 @@
+body {
+  background: #f4f4f4;
+  padding-bottom: 40px;
+}
+
+canvas {
+  border: 1px solid black;
+}
+
+ul, ol {
+  margin: 20px 0 30px;
+}
+
+p, li {
+  margin-bottom: 15px;
+  font-size: 16px;
+  font-weight: 200;
+}
+
+li {
+  font-style: italic;
+  margin-bottom: 0;
+}
+
+button.btn {
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 0 5px;
+  padding: 7px 20px;
+  line-height: normal;
+}
+
+.form-control {
+  display: inline-block;
+  float: left;
+  width: 372px;
+}
+
+.chat-message-input {
+  height: 34px;
+  width: 450px;
+}
+
+.connect,
+.chat-input {
+  overflow: auto;
+}
+
+.connect .btn {
+  float: left;
+}
+
+ul.chat-messages {
+  border-top: 1px solid #aaa;
+  margin: 10px 0 0;
+  padding-top: 10px;
+}
+
+ul.chat-messages li {
+
+}
+
+ul.chat-messages li p {
+    font-size: 16px;
+    margin: 5px 0 0;
+}
+
+ul.chat-messages li .badge {
+    float: none;
+}
+
+ul.chat-messages li.self {
+    text-align: right;
+}
+
+ul.chat-messages li.self .badge {
+
+}
