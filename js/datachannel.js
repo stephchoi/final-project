@@ -1,4 +1,4 @@
-var peer = new Peer (config)
+var peer = new Peer ({key: 'ex49zhpkv620529'})
 
 var connectedPeers = {};
 
