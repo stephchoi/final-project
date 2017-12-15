@@ -1,116 +1,96 @@
-// Initialise DataChannel.js
-var datachannel = new DataChannel();
+var peer = new Peer (config)
 
-// Set the userid based on what has been defined by DataChannel
-datachannel.userid = window.userid;
+var connectedPeers = {};
 
-// Open a connection to Pusher
-var pusher = new Pusher('0651fd26a21012b4c813', {
-      cluster: 'us2',
-      encrypted: true
-    });
+navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
-// Storage of Pusher connection socket ID
-var socketId;
 
-// Pusher.log = function(message) {
-//   if (window.console && window.console.log) {
-//     window.console.log(message);
-//   }
-// };
-
-// Monitor Pusher connection state
-pusher.connection.bind("state_change", function(states) {
-  switch (states.current) {
-    case "connected":
-      socketId = pusher.connection.socket_id;
-      break;
-    case "disconnected":
-    case "failed":
-    case "unavailable":
-      break;
-  }
+peer.on('open', function() {
+  console.log('My PeerJS ID is ' + peer.id)
+  document.getElementById('my-id').innerHTML = peer.id
 });
 
-// Set custom Pusher signalling channel
-datachannel.openSignalingChannel = function(config) {
-  var channel = config.channel || this.channel || "default-channel";
-  var xhrErrorCount = 0;
+// Receive data
+peer.on('connection', function(conn) {
+  conn.on('data', function(message){
+    console.log(message.data);
+    if (message.type === "drawing") {
+      drawCoord(message.data);
+    } else if (message.type === "chat") {
+      addMessage(message.data, userId);
+    }
+  });
+});
 
-  var socket = {
-    send: function(message) {
-      console.log(message);
-      $.ajax({
-        type: "POST",
-        url: "/message",
-        data: {
-          socketId: socketId,
-          channel: channel,
-          message: message
-        },
-        timeout: 1000,
-        success: function(data) {
-          xhrErrorCount = 0;
-        },
-        error: function(xhr, type) {
-          // Increase XHR error count
-          xhrErrorCount++;
+peer.on('error', function(err){
+  console.log(err);
+});
 
-          // Stop sending signaller messages if it's down
-          if (xhrErrorCount > 5) {
-            console.log("Disabling signaller due to connection failure");
-            datachannel.transmitRoomOnce = true;
-          }
-        }
+//Answer call
+peer.on('call', function(call) {
+    navigator.getUserMedia({video:false, audio: true}, function(stream) {
+      call.answer(stream); // Answer the call with an Audio stream.
+      call.on('stream', function(remoteStream) {
+        playStream(remoteStream);
       });
-    },
-    channel: channel
-  };
+    }, function(err) {
+      console.log('Failed to get local stream' ,err);
+    });
+});
 
-  // Subscribe to Pusher signalling channel
-  var pusherChannel = pusher.subscribe(channel);
 
-  // Call callback on successful connection to Pusher signalling channel
-  pusherChannel.bind("pusher:subscription_succeeded", function() {
-    if (config.callback) config.callback(socket);
-  });
+// Send Call
+var startCall = function(){
+  var requestedPeer = document.getElementById('other-person').value;
+  if(!connectedPeers[requestedPeer]) {
+    // Create the connection
+    var c = peer.connect(requestedPeer);
+    c.on('open', function(){
+      console.log('You are now connected to ' + requestedPeer + '.')
+    });
+    c.on('close', function(){
+      alert(c.peer + ' has left the chat.');
+      delete connectectedPeers[c.peer]
+    });
+    c.on('error', function(err){
+      alert(err);
+    });
+    c.on('data', function(message){
+      console.log(message.data);
+      if (message.type === "drawing") {
+        drawCoord(message.data);
+      } else if (message.type === "chat") {
+        addMessage(message.data, userId);
+      }
+    });
+    connectedPeers[requestedPeer] = 1;
 
-  // Proxy Pusher signaller messages to DataChannel
-  pusherChannel.bind("message", function(message) {
-    config.onmessage(message);
-  });
+    //Connect the audio stream
+    navigator.getUserMedia({video:false, audio: true}, function(stream) {
+      var options = {
+          'constraints': {
+              'mandatory': {
+                  'OfferToReceiveAudio': true,
+                  'OfferToReceiveVideo': true
+              }
+          }
+      };
 
-  return socket;
-};
-
-var onCreateChannel = function() {
-  var channelName = cleanChannelName(channelInput.value);
-
-  if (!channelName) {
-    console.log("No channel name given");
-    return;
+      var call = peer.call(requestedPeer, stream, options);
+      call.on('stream', function(remoteStream) {
+        playStream(remoteStream);
+      });
+    }, function(err) {
+      console.log('Failed to get local stream' ,err);
+    });
   }
-
-  disableConnectInput();
-  datachannel.open(channelName);
 };
 
-var onJoinChannel = function() {
-  var channelName = cleanChannelName(channelInput.value);
+function playStream(stream) {
+  var audio = $('<audio autoplay />').appendTo('body');
+  audio[0].src = (URL || webkitURL || mozURL).createObjectURL(stream);
+}
 
-  if (!channelName) {
-    console.log("No channel name given");
-    return;
-  }
-
-  disableConnectInput();
-  // Search for existing data channels
-  datachannel.connect(channelName);
-};
-
-var cleanChannelName = function(channel) {
-  return channel.replace(/(\W)+/g, "-").toLowerCase();
-};
 
 var onSendMessage = function() {
   var message = {
@@ -123,7 +103,12 @@ var onSendMessage = function() {
     return;
   }
 
-  datachannel.send(message);
+  var allPeerIds = Object.keys(connectedPeers);
+  for (i = 0; i < allPeerIds; i++){
+    var currentId = allPeerIds[i];
+    peer.connect(currentId).send(message);
+  };
+
   addMessage(message.data, window.userid, true);
 
   messageInput.value = "";
@@ -187,33 +172,30 @@ var drawCoord = function(array) {
   }
 };
 
+window.onunload = window.onbeforeunload = function(e) {
+  if (!!peer && !peer.destroyed) {
+    peer.destroy();
+  }
+};
 
-// Demo DOM elements
-var channelInput = document.querySelector(".channel-name-input");
+// DOM elements
 var createChannelBtn = document.querySelector(".chat-create");
-var joinChannelBtn = document.querySelector(".chat-join");
 var messageInput = document.querySelector(".chat-message-input");
 var sendBtn = document.querySelector(".chat-send");
 var messageList = document.querySelector(".chat-messages");
+var endCallBtn = document.querySelector(".chat-end");
+var otherPerson = document.querySelector(".channel-input");
 
 // Set up DOM listeners
-createChannelBtn.addEventListener("click", onCreateChannel);
-joinChannelBtn.addEventListener("click", onJoinChannel);
+createChannelBtn.addEventListener("click", startCall);
+// joinChannelBtn.addEventListener("click", joinCall);
 sendBtn.addEventListener("click", onSendMessage);
 messageInput.addEventListener("keydown", onMessageKeyDown);
-
-// Set up DataChannel handlers
-datachannel.onopen = function (userId) {
-  document.querySelector(".connect").classList.add("inactive");
-  document.querySelector(".canvas-window").classList.remove("inactive");
-  messageInput.focus();
-};
-
-datachannel.onmessage = function (message, userId) {
-  console.log(message.data);
-  if (message.type === "drawing") {
-    drawCoord(message.data);
-  } else if (message.type === "chat") {
-    addMessage(message.data, userId);
+endCallBtn.addEventListener("click", function(){
+  //Close the active connection
+  var allPeerIds = Object.keys(connectedPeers);
+  for (i = 0; i < allPeerIds; i++){
+    var currentId = allPeerIds[i];
+    peer.connect(currentId).close();
   }
-};
+});

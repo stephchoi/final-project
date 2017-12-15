@@ -3,18 +3,25 @@
   <head>
     <title>Tutoring Whiteboard App</title>
     <!-- Bootstrap for general layout and styling -->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 
     <link rel="stylesheet" href="style/main.css">
   </head>
+
   <body>
     <div class="container">
       <div class="row">
         <div class="connect">
-          <input type="text" class="channel-name-input form-control" placeholder="Channel Name"></input>
-          <button class="chat-create btn btn-primary">Create</button>
-          <button class="chat-join btn btn-warning">Join</button>
+          <p>Your id is: <span id="my-id">...</span></p>
+          <p>Who do you want to call?</p>
+          <!-- <label class="align-left" for="other-person">Who do you want to call?</label> -->
+          <input type="text" id="other-person" class="channel-input form-control" placeholder="Someone else's ID"></input>
+
+          <button class="chat-create btn btn-primary">Call</button>
+          <!-- <button class="chat-join btn btn-warning">Join</button> -->
+          <button class="chat-end btn">End Call</button>
         </div>
+
         <div class="canvas-window inactive">
           <canvas id="myCanvas" width=800 height=600></canvas>
         </div>
@@ -36,16 +43,14 @@
     <!-- jQuery -->
     <script type="text/JavaScript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js?ver=1.4.2"></script>
     <!-- Zepto for AJAX -->
-    <script src="//cdnjs.cloudflare.com/ajax/libs/zepto/1.1.3/zepto.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.1.3/zepto.min.js"></script>
 
-    <!-- Pusher for WebRTC signalling -->
-    <script src="https://js.pusher.com/4.1/pusher.min.js"></script>
-
-    <!-- DataChannel.js for WebRTC functionality -->
-    <script src="//webrtc-experiment.com/DataChannel.js"></script>
+    <!-- Peer -->
+    <script src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
 
     <!-- My scripts -->
-    <script src="/js/datachannel.js"></script>
-    <script src="/js/whiteboard.js"></script>
+    <script src="js/peer-config.js"></script>
+    <script src="js/datachannel.js"></script>
+    <script src="js/whiteboard.js"></script>
   </body>
 </html>

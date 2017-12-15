@@ -5,23 +5,6 @@ window.onload = function() {
   context.fillStyle = "#fff";
   context.fillRect(0,0, canvas.width, canvas.height);
 
-  //Draws the line from an array of coordinates
-  var drawCoord = function(array) {
-    for (i=0; i<array.length; i++){
-      if(i===0){
-        context.beginPath();
-        context.moveTo(array[i][0], array[i][1]);
-      } else if(i<array.length-1 && i >0){
-        context.lineTo(array[i][0], array[i][1]);
-        context.stroke();
-      } else {
-        context.lineTo(array[i][0], array[i][1]);
-        context.stroke();
-        context.closePath();
-      }
-    }
-  };
-
   //Mouse Event Handlers
   if(canvas){
     var mouseDown = false;
@@ -59,7 +42,14 @@ window.onload = function() {
         type: "drawing",
         data: coord
       };
-      datachannel.send(message);
+
+      //Checks for every Peer and sends data
+      var allPeerIds = Object.keys(connectedPeers);
+      for (i = 0; i < allPeerIds; i++){
+        var currentId = allPeerIds[i];
+        peer.connect(currentId).send(message);
+      }
+
       coord = [];
       context.closePath();
     });

@@ -4,3 +4,4 @@ config.php
 config.rb
 node_modules
 vendor
+peer-config.js
