@@ -1,4 +1,5 @@
-var peer = new Peer ({key: 'ex49zhpkv620529'})
+// var peer = new Peer ({key: 'ex49zhpkv620529'})
+var peer = new Peer({host: 'agile-badlands-45244.herokuapp.com', port: 443, secure: true, key: 'peerjs'})
 
 var connectedPeers = {};
 
