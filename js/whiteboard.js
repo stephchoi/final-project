@@ -44,10 +44,18 @@ window.onload = function() {
       };
 
       //Checks for every Peer and sends data
-      var allPeerIds = Object.keys(connectedPeers);
-      for (i = 0; i < allPeerIds; i++){
-        var currentId = allPeerIds[i];
-        peer.connect(currentId).send(message);
+      for (var currentPeerId in peer.connections){
+        if (!peer.connections.hasOwnProperty(currentPeerId)){
+          return;
+        }
+        
+        var connWithCurrentPeer = peer.connections[currentPeerId]
+        for (var i=0; i<connWithCurrentPeer.length; i++){
+          if (connWithCurrentPeer[i].type === "data") {
+
+          connWithCurrentPeer[i].send(message);
+          }
+        }
       }
 
       coord = [];

@@ -18,13 +18,17 @@ peer.on('connection', function(conn) {
     if (message.type === "drawing") {
       drawCoord(message.data);
     } else if (message.type === "chat") {
-      addMessage(message.data, userId);
+      addMessage(message.data, conn.peer);
     }
   });
 });
 
 peer.on('error', function(err){
   console.log(err);
+});
+
+peer.on('disconnected', function(){
+    peer.reconnect();
 });
 
 //Answer call
@@ -61,7 +65,7 @@ var startCall = function(){
       if (message.type === "drawing") {
         drawCoord(message.data);
       } else if (message.type === "chat") {
-        addMessage(message.data, userId);
+        addMessage(message.data, c.peer);
       }
     });
     connectedPeers[requestedPeer] = 1;
@@ -104,10 +108,19 @@ var onSendMessage = function() {
     return;
   }
 
-  var allPeerIds = Object.keys(connectedPeers);
-  for (i = 0; i < allPeerIds; i++){
-    var currentId = allPeerIds[i];
-    peer.connect(currentId).send(message);
+  console.log(peer.connections);
+  for (var currentPeerId in peer.connections){
+    if (!peer.connections.hasOwnProperty(currentPeerId)){
+      return;
+    }
+
+    var connWithCurrentPeer = peer.connections[currentPeerId]
+    for (var i=0; i<connWithCurrentPeer.length; i++){
+      if (connWithCurrentPeer[i].type === "data") {
+
+      connWithCurrentPeer[i].send(message);
+      }
+    }
   };
 
   addMessage(message.data, window.userid, true);
@@ -194,9 +207,14 @@ sendBtn.addEventListener("click", onSendMessage);
 messageInput.addEventListener("keydown", onMessageKeyDown);
 endCallBtn.addEventListener("click", function(){
   //Close the active connection
-  var allPeerIds = Object.keys(connectedPeers);
-  for (i = 0; i < allPeerIds; i++){
-    var currentId = allPeerIds[i];
-    peer.connect(currentId).close();
+  for (var currentPeerId in peer.connections){
+    if (!peer.connections.hasOwnProperty(currentPeerId)){
+      return;
+    }
+
+    var connWithCurrentPeer = peer.connections[currentPeerId]
+    for (var i=0; i<connWithCurrentPeer.length; i++){
+      connWithCurrentPeer[i].close;
+    }
   }
 });
