@@ -48,12 +48,12 @@ window.onload = function() {
         if (!peer.connections.hasOwnProperty(currentPeerId)){
           return;
         }
-        
+
         var connWithCurrentPeer = peer.connections[currentPeerId]
+        // Goes through all data connections with the peer.
         for (var i=0; i<connWithCurrentPeer.length; i++){
           if (connWithCurrentPeer[i].type === "data") {
-
-          connWithCurrentPeer[i].send(message);
+            connWithCurrentPeer[i].send(message);
           }
         }
       }

@@ -1,4 +1,3 @@
-// var peer = new Peer ({key: 'ex49zhpkv620529'})
 var peer = new Peer({host: 'peerjs-server.herokuapp.com', port: 443, secure: true, key: 'peerjs'})
 
 var connectedPeers = {};
@@ -14,7 +13,6 @@ peer.on('open', function() {
 // Receive data
 peer.on('connection', function(conn) {
   conn.on('data', function(message){
-    console.log(message.data);
     if (message.type === "drawing") {
       drawCoord(message.data);
     } else if (message.type === "chat") {
@@ -29,6 +27,10 @@ peer.on('error', function(err){
 
 peer.on('disconnected', function(){
     peer.reconnect();
+});
+
+peer.on('close', function(){
+  alert("The connection has been closed.");
 });
 
 //Answer call
@@ -108,17 +110,16 @@ var onSendMessage = function() {
     return;
   }
 
-  console.log(peer.connections);
   for (var currentPeerId in peer.connections){
     if (!peer.connections.hasOwnProperty(currentPeerId)){
       return;
     }
 
     var connWithCurrentPeer = peer.connections[currentPeerId]
+    // Goes through all data connections with the peer.
     for (var i=0; i<connWithCurrentPeer.length; i++){
       if (connWithCurrentPeer[i].type === "data") {
-
-      connWithCurrentPeer[i].send(message);
+        connWithCurrentPeer[i].send(message);
       }
     }
   };
@@ -147,17 +148,17 @@ var addMessage = function(message, userId, self) {
     }
   };
 
-var newMessage = document.createElement("li");
-  newMessage.classList.add("list-group-item");
+  var newMessage = document.createElement("li");
+    newMessage.classList.add("list-group-item");
 
-  if (self) {
-    newMessage.classList.add("self");
-    newMessage.innerHTML = "<span class='badge'>You</span><p>" + message + "</p>";
-  } else {
-    newMessage.innerHTML = "<span class='badge'>" + userId + "</span><p>" + message + "</p>"
-  }
+    if (self) {
+      newMessage.classList.add("self");
+      newMessage.innerHTML = "<span class='badge'>You</span><p>" + message + "</p>";
+    } else {
+      newMessage.innerHTML = "<span class='badge'>" + userId + "</span><p>" + message + "</p>"
+    }
 
-  messageList.appendChild(newMessage);
+    messageList.appendChild(newMessage);
 };
 
 var disableConnectInput = function() {
@@ -202,7 +203,6 @@ var otherPerson = document.querySelector(".channel-input");
 
 // Set up DOM listeners
 createChannelBtn.addEventListener("click", startCall);
-// joinChannelBtn.addEventListener("click", joinCall);
 sendBtn.addEventListener("click", onSendMessage);
 messageInput.addEventListener("keydown", onMessageKeyDown);
 endCallBtn.addEventListener("click", function(){
@@ -214,7 +214,7 @@ endCallBtn.addEventListener("click", function(){
 
     var connWithCurrentPeer = peer.connections[currentPeerId]
     for (var i=0; i<connWithCurrentPeer.length; i++){
-      connWithCurrentPeer[i].close;
+      connWithCurrentPeer[i].close();
     }
   }
 });
