@@ -1,36 +1,45 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Tutoring Whiteboard App</title>
+    <title>Whiteboard Chat App</title>
     <!-- Bootstrap for general layout and styling -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-
     <link rel="stylesheet" href="style/main.css">
   </head>
 
   <body>
+    <nav class="navbar navbar-inverse fixed-top">
+      <span class="navbar-brand">Calm Atoll:</span>
+      <span class="navbar-text">a whiteboard chat app</span>
+      <a class="btn btn-default btn-small navbar-btn navbar-right" href="https://github.com/stephchoi/final-project" role="button">Fork me</a>
+</button>
+    </nav>
+
     <div class="container">
       <div class="row">
         <div class="connect">
-          <p>Your id is: <span id="my-id">...</span></p>
-          <p>Who do you want to call?</p>
-          <!-- <label class="align-left" for="other-person">Who do you want to call?</label> -->
-          <input type="text" id="other-person" class="channel-input form-control" placeholder="Someone else's ID"></input>
+          <p class="self">Your id is: <span id="my-id">...</span></p>
 
-          <button class="chat-create btn btn-primary">Call</button>
-          <!-- <button class="chat-join btn btn-warning">Join</button> -->
-          <button class="chat-end btn">End Call</button>
+          <div class="peer-request-form">
+            <label for="other-person">Who do you want to call? </label>
+            <input type="text" id="other-person" class="channel-input form-control" placeholder="Someone else's ID"></input>
+            <button class="chat-create btn btn-primary">Call</button>
+            <button class="chat-end btn btn-danger">End Call</button>
+          </div>
         </div>
-
+      </div>
+      <div class="row">
         <div class="canvas-window inactive">
-          <canvas id="myCanvas" width=800 height=600></canvas>
+          <canvas id="myCanvas"></canvas>
         </div>
       </div>
 
       <div class="row">
         <div class="chat inactive">
             <div class="chat-input">
-              <input name="message" class="chat-message-input form-control" placeholder="Message"></input>
+              <div class="input-wrapper">
+                <input name="message" class="chat-message-input form-control" placeholder="Enter Text"></input>
+              </div>
               <button class="chat-send btn btn-primary">Send</button>
             </div>
             <ul class="chat-messages list-group">
@@ -39,6 +48,17 @@
           </div>
       </div>
     </div>
+
+    <div class="container">
+      <br>
+      <hr>
+      <footer class="footer">
+        <small>
+          <span class="glyphicon glyphicon-cog"></span> created by <a href="#">Stephany Choi</a>
+        </small>
+      </footer>
+    </div>
+
 
     <!-- jQuery -->
     <script type="text/JavaScript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js?ver=1.4.2"></script>
